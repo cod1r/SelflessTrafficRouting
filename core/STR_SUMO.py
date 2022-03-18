@@ -1,9 +1,8 @@
 import os
 import sys
-import optparse
-from typing import List
-from xml.dom.minidom import parse, parseString
+from typing import List, Dict
 from core.Util import *
+from typing import MutableSet
 
 if 'SUMO_HOME' in os.environ:
     tools = os.path.join(os.environ['SUMO_HOME'], 'tools')
@@ -20,7 +19,7 @@ SUMO Selfless Traffic Routing (STR) Testbed
 MAX_SIMULATION_STEPS = 2000
 
 class StrSumo:
-    def __init__(self, route_controller, connection_info, controlled_vehicles):
+    def __init__(self, route_controller, connection_info, controlled_vehicles: Dict[str, Vehicle]):
         """
         :param route_controller: object that implements the scheduling algorithm for controlled vehicles
         :param connection_info: object that includes the map information
@@ -37,17 +36,16 @@ class StrSumo:
         Decisions are enforced in SUMO by setting the destination of the vehicle to the result of the
         :returns: total time, number of cars that reached their destination, number of deadlines missed
         """
-        total_time: int = 0
-        end_number: int = 0
+        total_time: float | int = 0
+        end_number: float | int = 0
         deadlines_missed: List[int] = []
 
-        step = 0
-        vehicle_IDs_in_simulation = []
+        step: int = 0
+        vehicle_IDs_in_simulation: List[str] = []
 
         try:
             while traci.simulation.getMinExpectedNumber() > 0:
-                vehicle_ids = set(traci.vehicle.getIDList())
-
+                vehicle_ids: MutableSet[str] = set(traci.vehicle.getIDList())
                 # store edge vehicle counts in connection_info.edge_vehicle_count
                 self.get_edge_vehicle_counts()
                 #initialize vehicles to be directed
@@ -83,7 +81,6 @@ class StrSumo:
                         self.controlled_vehicles[vehicle_id].local_destination = local_target_edge
 
                 arrived_at_destination = traci.simulation.getArrivedIDList()
-
                 for vehicle_id in arrived_at_destination:
                     if vehicle_id in self.controlled_vehicles:
                         #print the raw result out to the terminal
@@ -99,8 +96,6 @@ class StrSumo:
                         end_number += 1
                         print("Vehicle {} reaches the destination: {}, timespan: {}, deadline missed: {}"\
                             .format(vehicle_id, arrived_at_destination, time_span, miss))
-                        #if not arrived_at_destination:
-                            #print("{} - {}".format(self.controlled_vehicles[vehicle_id].local_destination, self.controlled_vehicles[vehicle_id].destination))
 
                 traci.simulationStep()
                 step += 1
@@ -117,6 +112,7 @@ class StrSumo:
 
         return total_time, end_number, num_deadlines_missed
 
+    # Very useful function for doing things based on how many vehicles are on an edge
     def get_edge_vehicle_counts(self):
         for edge in self.connection_info.edge_list:
             self.connection_info.edge_vehicle_count[edge] = traci.edge.getLastStepVehicleNumber(edge)

@@ -1,15 +1,13 @@
 from abc import ABC, abstractmethod
-import random
 import os
 import sys
 from core.Util import *
+from typing import List
 if 'SUMO_HOME' in os.environ:
     tools = os.path.join(os.environ['SUMO_HOME'], 'tools')
     sys.path.append(tools)
 else:
     sys.exit("No environment variable SUMO_HOME!")
-import traci
-import sumolib
 
 class RouteController(ABC):
     """
@@ -36,13 +34,16 @@ class RouteController(ABC):
     def __init__(self, connection_info: ConnectionInfo):
         self.connection_info = connection_info
 
-    def compute_local_target(self, decision_list, vehicle):
+    # This function returs the next edge that is far enough away? I guess?
+    # Decision list is a list of directions (direction values are documented in sumo docs and tutorials) that the make_decisions function
+    # -- returns
+    def compute_local_target(self, decision_list: List[str], vehicle: Vehicle) -> str:
         current_target_edge = vehicle.current_edge
         try:
             path_length = 0
             i = 0
 
-            #the while is used to make sure the vehicle will not assume it arrives the destination beacuse the target edge is too short.
+            # the while is used to make sure the vehicle will not assume it arrives the destination because the target edge is too short.
             while path_length <= max(vehicle.current_speed, 20):
                 if current_target_edge == vehicle.destination:
                     break

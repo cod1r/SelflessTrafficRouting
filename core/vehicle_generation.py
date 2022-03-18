@@ -7,7 +7,7 @@ from typing import List
 # This file generates vehicles, then writes them to a rou.xml file which the traci package will parse
 
 def WithControlledAndUncontrolled_OneStartOneDest(config_folder: str, config_file, \
-  start_location: str, end_location: str, num_controlled_vehicles: int, num_uncontrolled_vehicles: int, trip_end_time: int):
+  start_location: str, end_location: str, num_controlled_vehicles: int, num_uncontrolled_vehicles: int, trip_end_time: int) -> List[Vehicle]:
 
   CONFIG_DOM = parse(f'./configurations/{config_folder}/{config_file}')
   net_file: str = CONFIG_DOM.getElementsByTagName('net-file')[0].attributes['value'].nodeValue
@@ -27,11 +27,13 @@ def WithControlledAndUncontrolled_OneStartOneDest(config_folder: str, config_fil
   vehicles: List[Vehicle] = []
   release_time: float | int = float(vehicles_generated[-1].attributes['depart'].nodeValue)
   for _ in range(num_controlled_vehicles):
-    deadline: int = randint(500, 700)
+    deadline: int = randint(300, 600)
     vehicles.append(Vehicle(current_ID, end_location, release_time, deadline))
     current_ID += 1
     release_time += interval
+
   vehicles.sort(key=lambda x: x.start_time)
+
   for vehicle in vehicles:
     vhcl = XML_FILE.createElement('vehicle')
     vhcl.setAttribute('id', str(vehicle.vehicle_id))
@@ -45,6 +47,8 @@ def WithControlledAndUncontrolled_OneStartOneDest(config_folder: str, config_fil
   with open(route_file_name, 'w') as R:
     R.write(XML_FILE.toprettyxml())
     R.flush()
+
+  return vehicles
   
 
 def OnlyControlled_OneStartOneDest(config_folder: str, start_location: str, end_location: str):
