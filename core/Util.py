@@ -9,7 +9,7 @@ from sumolib import net
 import sumolib
 
 class Vehicle:
-    def __init__(self, vehicle_id: float | int, destination: str, start_time: float | int, deadline: float | int):
+    def __init__(self, vehicle_id: str, destination: str, start_time: float | int, deadline: float | int):
         """
         Args:
                 vehicle_id:         type: string. The id of the vehicle.
@@ -17,7 +17,7 @@ class Vehicle:
                 start_time:         type: float. The step # when the vehicle is released. This value will be updated by STR_SUMO.
                 deadline:           type: float. The deadline for this vehicle to reach the end of the target edge.
         """
-        self.vehicle_id: float | int = vehicle_id
+        self.vehicle_id: str = vehicle_id
         self.destination: str = destination
         self.start_time: float | int = start_time
         self.deadline: float | int = deadline
@@ -70,6 +70,7 @@ class ConnectionInfo:
                 print(current_edge_id + "already exists!")
             else:
                 self.outgoing_edges_dict[current_edge_id] = {}
+            
             if current_edge_id in self.edge_length_dict.keys():
                 print(current_edge_id + "already exists!")
             else:

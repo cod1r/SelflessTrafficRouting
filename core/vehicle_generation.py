@@ -28,7 +28,7 @@ def WithControlledAndUncontrolled_OneStartOneDest(config_folder: str, config_fil
   release_time: float | int = float(vehicles_generated[-1].attributes['depart'].nodeValue)
   for _ in range(num_controlled_vehicles):
     deadline: int = randint(300, 600)
-    vehicles.append(Vehicle(current_ID, end_location, release_time, deadline))
+    vehicles.append(Vehicle(str(current_ID), end_location, release_time, deadline))
     current_ID += 1
     release_time += interval
 
